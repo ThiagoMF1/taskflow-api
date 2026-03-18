@@ -6,6 +6,7 @@ import com.thiagomf.taskflowapi.dto.RegisterRequest;
 import com.thiagomf.taskflowapi.entity.Role;
 import com.thiagomf.taskflowapi.entity.User;
 import com.thiagomf.taskflowapi.repository.UserRepository;
+import com.thiagomf.taskflowapi.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -33,6 +35,7 @@ public class AuthService {
 
         return new AuthResponse(
                 "User registered successfully",
+                null,
                 user.getName(),
                 user.getEmail(),
                 user.getRole().name()
@@ -49,8 +52,11 @@ public class AuthService {
             throw new RuntimeException("Invalid email or password");
         }
 
+        String token = jwtService.generateToken(user.getEmail());
+
         return new AuthResponse(
                 "Login successful",
+                token,
                 user.getName(),
                 user.getEmail(),
                 user.getRole().name()
