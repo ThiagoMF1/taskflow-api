@@ -1,6 +1,7 @@
 package com.thiagomf.taskflowapi.controller;
 
 import com.thiagomf.taskflowapi.dto.AuthResponse;
+import com.thiagomf.taskflowapi.dto.LoginRequest;
 import com.thiagomf.taskflowapi.dto.RegisterRequest;
 import com.thiagomf.taskflowapi.service.AuthService;
 import jakarta.validation.Valid;
@@ -19,5 +20,10 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
         return authService.register(request);
+    }
+
+    @PostMapping("/login")
+    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
+        return authService.login(request);
     }
 }
