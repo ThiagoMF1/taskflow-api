@@ -7,6 +7,7 @@ import com.thiagomf.taskflowapi.dto.UpdateTaskStatusRequest;
 import com.thiagomf.taskflowapi.entity.Task;
 import com.thiagomf.taskflowapi.entity.TaskStatus;
 import com.thiagomf.taskflowapi.entity.User;
+import com.thiagomf.taskflowapi.exception.ResourceNotFoundException;
 import com.thiagomf.taskflowapi.repository.TaskRepository;
 import com.thiagomf.taskflowapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -85,12 +86,12 @@ public class TaskService {
 
     private User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     private Task getTaskByIdAndUser(Long id, User user) {
         return taskRepository.findByIdAndUser(id, user)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
     }
 
     private TaskResponse mapToResponse(Task task) {

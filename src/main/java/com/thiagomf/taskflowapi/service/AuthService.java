@@ -5,6 +5,8 @@ import com.thiagomf.taskflowapi.dto.LoginRequest;
 import com.thiagomf.taskflowapi.dto.RegisterRequest;
 import com.thiagomf.taskflowapi.entity.Role;
 import com.thiagomf.taskflowapi.entity.User;
+import com.thiagomf.taskflowapi.exception.DuplicateResourceException;
+import com.thiagomf.taskflowapi.exception.ResourceNotFoundException;
 import com.thiagomf.taskflowapi.repository.UserRepository;
 import com.thiagomf.taskflowapi.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,7 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered");
+            throw new DuplicateResourceException("Email already registered");
         }
 
         User user = User.builder()
@@ -44,12 +46,12 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid email or password"));
 
         boolean passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
         if (!passwordMatches) {
-            throw new RuntimeException("Invalid email or password");
+            throw new ResourceNotFoundException("Invalid email or password");
         }
 
         String token = jwtService.generateToken(user.getEmail());
