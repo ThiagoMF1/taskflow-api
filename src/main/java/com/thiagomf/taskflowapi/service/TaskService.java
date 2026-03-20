@@ -2,6 +2,8 @@ package com.thiagomf.taskflowapi.service;
 
 import com.thiagomf.taskflowapi.dto.CreateTaskRequest;
 import com.thiagomf.taskflowapi.dto.TaskResponse;
+import com.thiagomf.taskflowapi.dto.UpdateTaskRequest;
+import com.thiagomf.taskflowapi.dto.UpdateTaskStatusRequest;
 import com.thiagomf.taskflowapi.entity.Task;
 import com.thiagomf.taskflowapi.entity.TaskStatus;
 import com.thiagomf.taskflowapi.entity.User;
@@ -21,8 +23,7 @@ public class TaskService {
     private final UserRepository userRepository;
 
     public TaskResponse createTask(CreateTaskRequest request, String userEmail) {
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = getUserByEmail(userEmail);
 
         Task task = Task.builder()
                 .title(request.getTitle())
@@ -34,31 +35,72 @@ public class TaskService {
                 .build();
 
         Task savedTask = taskRepository.save(task);
-
-        return new TaskResponse(
-                savedTask.getId(),
-                savedTask.getTitle(),
-                savedTask.getDescription(),
-                savedTask.getStatus().name(),
-                savedTask.getPriority().name(),
-                savedTask.getCreatedAt().toString()
-        );
+        return mapToResponse(savedTask);
     }
 
     public List<TaskResponse> getMyTasks(String userEmail) {
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = getUserByEmail(userEmail);
 
         return taskRepository.findByUser(user)
                 .stream()
-                .map(task -> new TaskResponse(
-                        task.getId(),
-                        task.getTitle(),
-                        task.getDescription(),
-                        task.getStatus().name(),
-                        task.getPriority().name(),
-                        task.getCreatedAt().toString()
-                ))
+                .map(this::mapToResponse)
                 .toList();
+    }
+
+    public TaskResponse getTaskById(Long id, String userEmail) {
+        User user = getUserByEmail(userEmail);
+        Task task = getTaskByIdAndUser(id, user);
+
+        return mapToResponse(task);
+    }
+
+    public TaskResponse updateTask(Long id, UpdateTaskRequest request, String userEmail) {
+        User user = getUserByEmail(userEmail);
+        Task task = getTaskByIdAndUser(id, user);
+
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
+        task.setPriority(request.getPriority());
+
+        Task updatedTask = taskRepository.save(task);
+        return mapToResponse(updatedTask);
+    }
+
+    public TaskResponse updateTaskStatus(Long id, UpdateTaskStatusRequest request, String userEmail) {
+        User user = getUserByEmail(userEmail);
+        Task task = getTaskByIdAndUser(id, user);
+
+        task.setStatus(request.getStatus());
+
+        Task updatedTask = taskRepository.save(task);
+        return mapToResponse(updatedTask);
+    }
+
+    public void deleteTask(Long id, String userEmail) {
+        User user = getUserByEmail(userEmail);
+        Task task = getTaskByIdAndUser(id, user);
+
+        taskRepository.delete(task);
+    }
+
+    private User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    private Task getTaskByIdAndUser(Long id, User user) {
+        return taskRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+    }
+
+    private TaskResponse mapToResponse(Task task) {
+        return new TaskResponse(
+                task.getId(),
+                task.getTitle(),
+                task.getDescription(),
+                task.getStatus().name(),
+                task.getPriority().name(),
+                task.getCreatedAt().toString()
+        );
     }
 }
