@@ -1,6 +1,7 @@
 package com.thiagomf.taskflowapi.controller;
 
 import com.thiagomf.taskflowapi.dto.CreateTaskRequest;
+import com.thiagomf.taskflowapi.dto.TaskDashboardResponse;
 import com.thiagomf.taskflowapi.dto.TaskResponse;
 import com.thiagomf.taskflowapi.dto.UpdateTaskRequest;
 import com.thiagomf.taskflowapi.dto.UpdateTaskStatusRequest;
@@ -30,6 +31,11 @@ public class TaskController {
     @GetMapping
     public List<TaskResponse> getMyTasks(Authentication authentication) {
         return taskService.getMyTasks(authentication.getName());
+    }
+
+    @GetMapping("/dashboard")
+    public TaskDashboardResponse getDashboard(Authentication authentication) {
+        return taskService.getDashboard(authentication.getName());
     }
 
     @GetMapping("/{id}")

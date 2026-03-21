@@ -3,10 +3,12 @@ package com.thiagomf.taskflowapi.controller;
 import com.thiagomf.taskflowapi.dto.AuthResponse;
 import com.thiagomf.taskflowapi.dto.LoginRequest;
 import com.thiagomf.taskflowapi.dto.RegisterRequest;
+import com.thiagomf.taskflowapi.dto.UserResponse;
 import com.thiagomf.taskflowapi.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,5 +27,10 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
+    }
+
+    @GetMapping("/me")
+    public UserResponse getCurrentUser(Authentication authentication) {
+        return authService.getCurrentUser(authentication.getName());
     }
 }

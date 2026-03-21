@@ -3,6 +3,7 @@ package com.thiagomf.taskflowapi.service;
 import com.thiagomf.taskflowapi.dto.AuthResponse;
 import com.thiagomf.taskflowapi.dto.LoginRequest;
 import com.thiagomf.taskflowapi.dto.RegisterRequest;
+import com.thiagomf.taskflowapi.dto.UserResponse;
 import com.thiagomf.taskflowapi.entity.Role;
 import com.thiagomf.taskflowapi.entity.User;
 import com.thiagomf.taskflowapi.exception.DuplicateResourceException;
@@ -59,6 +60,18 @@ public class AuthService {
         return new AuthResponse(
                 "Login successful",
                 token,
+                user.getName(),
+                user.getEmail(),
+                user.getRole().name()
+        );
+    }
+
+    public UserResponse getCurrentUser(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return new UserResponse(
+                user.getId(),
                 user.getName(),
                 user.getEmail(),
                 user.getRole().name()

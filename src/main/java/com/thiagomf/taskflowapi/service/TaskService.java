@@ -1,6 +1,7 @@
 package com.thiagomf.taskflowapi.service;
 
 import com.thiagomf.taskflowapi.dto.CreateTaskRequest;
+import com.thiagomf.taskflowapi.dto.TaskDashboardResponse;
 import com.thiagomf.taskflowapi.dto.TaskResponse;
 import com.thiagomf.taskflowapi.dto.UpdateTaskRequest;
 import com.thiagomf.taskflowapi.dto.UpdateTaskStatusRequest;
@@ -82,6 +83,22 @@ public class TaskService {
         Task task = getTaskByIdAndUser(id, user);
 
         taskRepository.delete(task);
+    }
+
+    public TaskDashboardResponse getDashboard(String userEmail) {
+        User user = getUserByEmail(userEmail);
+
+        long totalTasks = taskRepository.countByUser(user);
+        long pendingTasks = taskRepository.countByUserAndStatus(user, TaskStatus.PENDING);
+        long inProgressTasks = taskRepository.countByUserAndStatus(user, TaskStatus.IN_PROGRESS);
+        long completedTasks = taskRepository.countByUserAndStatus(user, TaskStatus.COMPLETED);
+
+        return new TaskDashboardResponse(
+                totalTasks,
+                pendingTasks,
+                inProgressTasks,
+                completedTasks
+        );
     }
 
     private User getUserByEmail(String email) {
