@@ -11,6 +11,7 @@ import com.thiagomf.taskflowapi.repository.TaskRepository;
 import com.thiagomf.taskflowapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.thiagomf.taskflowapi.config.DateTimeFormatterUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +23,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final TaskHistoryService taskHistoryService;
 
     public CommentResponse createComment(Long taskId, CreateCommentRequest request, String userEmail) {
         User user = getUserByEmail(userEmail);
@@ -35,6 +37,9 @@ public class CommentService {
                 .build();
 
         Comment savedComment = commentRepository.save(comment);
+
+        taskHistoryService.createHistory(task, user, "Comment added");
+
         return mapToResponse(savedComment);
     }
 
@@ -63,7 +68,7 @@ public class CommentService {
                 comment.getId(),
                 comment.getContent(),
                 comment.getUser().getName(),
-                comment.getCreatedAt().toString()
+                DateTimeFormatterUtil.format(comment.getCreatedAt())
         );
     }
 }

@@ -13,6 +13,7 @@ import com.thiagomf.taskflowapi.repository.TaskRepository;
 import com.thiagomf.taskflowapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.thiagomf.taskflowapi.config.DateTimeFormatterUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,6 +24,7 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final TaskHistoryService taskHistoryService;
 
     public TaskResponse createTask(CreateTaskRequest request, String userEmail) {
         User user = getUserByEmail(userEmail);
@@ -37,6 +39,9 @@ public class TaskService {
                 .build();
 
         Task savedTask = taskRepository.save(task);
+
+        taskHistoryService.createHistory(savedTask, user, "Task created");
+
         return mapToResponse(savedTask);
     }
 
@@ -65,6 +70,9 @@ public class TaskService {
         task.setPriority(request.getPriority());
 
         Task updatedTask = taskRepository.save(task);
+
+        taskHistoryService.createHistory(updatedTask, user, "Task updated");
+
         return mapToResponse(updatedTask);
     }
 
@@ -75,6 +83,13 @@ public class TaskService {
         task.setStatus(request.getStatus());
 
         Task updatedTask = taskRepository.save(task);
+
+        taskHistoryService.createHistory(
+                updatedTask,
+                user,
+                "Task status changed to " + updatedTask.getStatus().name()
+        );
+
         return mapToResponse(updatedTask);
     }
 
@@ -118,7 +133,7 @@ public class TaskService {
                 task.getDescription(),
                 task.getStatus().name(),
                 task.getPriority().name(),
-                task.getCreatedAt().toString()
+                DateTimeFormatterUtil.format(task.getCreatedAt())
         );
     }
 }
