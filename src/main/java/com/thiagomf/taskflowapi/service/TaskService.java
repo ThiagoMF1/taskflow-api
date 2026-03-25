@@ -8,12 +8,12 @@ import com.thiagomf.taskflowapi.dto.UpdateTaskStatusRequest;
 import com.thiagomf.taskflowapi.entity.Task;
 import com.thiagomf.taskflowapi.entity.TaskStatus;
 import com.thiagomf.taskflowapi.entity.User;
+import com.thiagomf.taskflowapi.exception.BusinessException;
 import com.thiagomf.taskflowapi.exception.ResourceNotFoundException;
 import com.thiagomf.taskflowapi.repository.TaskRepository;
 import com.thiagomf.taskflowapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.thiagomf.taskflowapi.config.DateTimeFormatterUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -80,6 +80,8 @@ public class TaskService {
         User user = getUserByEmail(userEmail);
         Task task = getTaskByIdAndUser(id, user);
 
+        validateStatusTransition(task.getStatus(), request.getStatus());
+
         task.setStatus(request.getStatus());
 
         Task updatedTask = taskRepository.save(task);
@@ -126,6 +128,20 @@ public class TaskService {
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
     }
 
+    private void validateStatusTransition(TaskStatus currentStatus, TaskStatus newStatus) {
+        if (currentStatus == newStatus) {
+            throw new BusinessException("Task is already in status " + newStatus.name());
+        }
+
+        if (currentStatus == TaskStatus.PENDING && newStatus == TaskStatus.COMPLETED) {
+            throw new BusinessException("Invalid status transition from PENDING to COMPLETED");
+        }
+
+        if (currentStatus == TaskStatus.COMPLETED) {
+            throw new BusinessException("Completed tasks cannot change status");
+        }
+    }
+
     private TaskResponse mapToResponse(Task task) {
         return new TaskResponse(
                 task.getId(),
@@ -133,7 +149,7 @@ public class TaskService {
                 task.getDescription(),
                 task.getStatus().name(),
                 task.getPriority().name(),
-                DateTimeFormatterUtil.format(task.getCreatedAt())
+                task.getCreatedAt().toString()
         );
     }
 }

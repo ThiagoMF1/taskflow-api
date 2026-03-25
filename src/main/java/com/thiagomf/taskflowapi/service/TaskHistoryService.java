@@ -10,7 +10,6 @@ import com.thiagomf.taskflowapi.repository.TaskRepository;
 import com.thiagomf.taskflowapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.thiagomf.taskflowapi.config.DateTimeFormatterUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -47,7 +46,7 @@ public class TaskHistoryService {
                         history.getId(),
                         history.getAction(),
                         history.getUser().getName(),
-                        DateTimeFormatterUtil.format(history.getCreatedAt())
+                        history.getCreatedAt().toString()
                 ))
                 .toList();
     }

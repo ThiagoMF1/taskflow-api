@@ -11,7 +11,6 @@ import com.thiagomf.taskflowapi.repository.TaskRepository;
 import com.thiagomf.taskflowapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.thiagomf.taskflowapi.config.DateTimeFormatterUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -68,7 +67,7 @@ public class CommentService {
                 comment.getId(),
                 comment.getContent(),
                 comment.getUser().getName(),
-                DateTimeFormatterUtil.format(comment.getCreatedAt())
+                comment.getCreatedAt().toString()
         );
     }
 }
