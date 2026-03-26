@@ -12,9 +12,9 @@
   <img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
 </p>
 
-TaskFlow API is a backend project built to practice Java and Spring Boot by creating a task management system with authentication, JWT security, protected routes, dashboard metrics, and clean API structure.
+TaskFlow API is a backend project built with Java and Spring Boot to manage tasks in a more realistic way, including authentication, JWT security, protected routes, dashboard metrics, comments, history tracking, and business rules for task status transitions.
 
-This project is being developed as part of my backend portfolio, with the goal of building something closer to a real system instead of just a basic CRUD.
+This project was created as part of my backend portfolio, with the goal of building something closer to a real system instead of just a basic CRUD.
 
 ---
 
@@ -43,13 +43,15 @@ Current progress:
 
 - project setup completed
 - PostgreSQL configured
-- user entity created
 - authentication with JWT implemented
 - protected routes working
 - authenticated user endpoint implemented
 - task CRUD implemented
 - task dashboard implemented
+- task comments implemented
+- task history implemented
 - global exception handling implemented
+- task status transition rules implemented
 - Swagger documentation working
 
 ---
@@ -80,12 +82,37 @@ Current progress:
 - in progress tasks
 - completed tasks
 
+### Comments
+
+- add comments to a task
+- list comments by task
+- comments linked to authenticated user
+- comments only accessible by the task owner
+
+### History
+
+- automatic task history tracking
+- task created
+- task updated
+- task status changed
+- comment added
+- list history by task
+
+### Business Rules
+
+- `PENDING -> IN_PROGRESS` allowed
+- `IN_PROGRESS -> COMPLETED` allowed
+- `PENDING -> COMPLETED` not allowed
+- completed tasks cannot change status
+- same status transition is not allowed
+
 ### Error Handling
 
 - global exception handling
 - duplicate email returns `409 Conflict`
 - task not found returns `404 Not Found`
 - validation errors return `400 Bad Request`
+- invalid business rules return `400 Bad Request`
 
 ### Documentation
 
@@ -131,6 +158,15 @@ The project currently supports these task priorities:
 - `DELETE /api/tasks/{id}` → delete task
 - `GET /api/tasks/dashboard` → get task dashboard metrics
 
+### Comments
+
+- `POST /api/tasks/{taskId}/comments` → create comment
+- `GET /api/tasks/{taskId}/comments` → list task comments
+
+### History
+
+- `GET /api/tasks/{taskId}/history` → list task history
+
 ---
 
 ## Authentication
@@ -151,6 +187,14 @@ Example Validation Error Response
     "title": "Title is required",
     "priority": "Priority is required"
   }
+}
+Example Business Rule Error Response
+{
+  "timestamp": "2026-03-25T12:07:21.6678132",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Invalid status transition from PENDING to COMPLETED",
+  "validationErrors": null
 }
 Project Structure
 src/main/java/com/thiagomf/taskflowapi
@@ -216,19 +260,33 @@ You can test the API using:
 
 Swagger UI
 Postman
+Current Project Highlights
+
+This project currently includes:
+
+JWT authentication
+protected routes
+authenticated user endpoint
+task CRUD
+task dashboard
+task comments
+task history
+global exception handling
+validation handling
+status transition business rules
+Swagger documentation
 Next Steps
 
 Planned next improvements:
 
-task comments
-more business rules
-dashboard improvements
+final project review
+README refinements
 endpoint refinements
-more documentation improvements
+possible business rule improvements
+portfolio presentation improvements
 Author
 
 Thiago Machado Freire
 
 GitHub: ThiagoMF1
 LinkedIn: Thiago Machado Freire
-linkedin.com/in/thiago-machado-freire-779964281/
